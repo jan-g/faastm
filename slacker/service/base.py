@@ -18,6 +18,7 @@ class Channel:
             self.is_private = is_private
         if is_im is not None:
             self.is_im = is_im
+        return self
 
 
 class Agent:
@@ -37,6 +38,7 @@ class Agent:
             self.is_bot = is_bot
         if real_name is not None:
             self.real_name = real_name
+        return self
 
 
 class Notice:
@@ -53,6 +55,7 @@ class Notice:
             self.id = id
         if text is not None:
             self.text = text
+        return self
 
 
 class BaseService:
