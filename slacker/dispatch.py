@@ -15,12 +15,12 @@ class Dispatcher:
         self.namespace = namespace
         self.bucket = bucket
 
-    def dispatch(self, sender=None, channel=None, recipients=None, text=None):
+    def dispatch(self, sender=None, channel=None, receivers=None, text=None):
         while True:
             obj = load(channel.id, default=self.default, factory=self.factory,
                        signer=self.signer, namespace=self.namespace, bucket=self.bucket)
             srv = CommittingService(self.srv)
-            if obj.on_message(srv=srv, sender=sender, channel=channel, recipients=recipients, text=text):
+            if obj.on_message(srv=srv, sender=sender, channel=channel, receivers=receivers, text=text):
                 # We have to save
                 try:
                     save(channel.id, obj,
