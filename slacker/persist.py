@@ -20,25 +20,33 @@ def save(key, obj, signer=None, namespace=None, bucket=None):
     client = oci.object_storage.ObjectStorageClient({}, signer=signer)
     if old_version is None:
         # We expect there should not be something already
-        response = client.put_object(namespace_name=namespace, bucket_name=bucket, object_name=key,
-                                     put_object_body=store, if_none_match='*')
+        try:
+            response = client.put_object(namespace_name=namespace, bucket_name=bucket, object_name=key,
+                                         put_object_body=store, if_none_match='*')
+        except oci.exceptions.ServiceError as e:
+            raise STMError()
+
         if response.status == 200:
             # Save the object and the etag
             CACHE[key] = (response.headers['ETag'], obj)
             return
-        else:
-            raise STMError()
+
+        raise STMError()
 
     else:
         # We want to be overwriting the same version we started with
-        response = client.put_object(namespace_name=namespace, bucket_name=bucket, object_name=key,
-                                     put_object_body=store, if_match=old_version)
+        try:
+            response = client.put_object(namespace_name=namespace, bucket_name=bucket, object_name=key,
+                                         put_object_body=store, if_match=old_version)
+        except oci.exceptions.ServiceError as e:
+            raise STMError()
+
         if response.status == 200:
             # Save the object and the etag
             CACHE[key] = (response.headers['ETag'], obj)
             return
-        else:
-            raise STMError()
+
+        raise STMError()
 
 
 def load(key, default=None, factory=None, signer=None, namespace=None, bucket=None):
@@ -48,32 +56,39 @@ def load(key, default=None, factory=None, signer=None, namespace=None, bucket=No
     client = oci.object_storage.ObjectStorageClient({}, signer=signer)
     if old_version is None:
         # Check to see if there's a new version, because we don't have one
-        response = client.get_object(namespace_name=namespace, bucket_name=bucket, object_name=key)
-        if response.status == 404:
-            # Construct and return a new object
-            return default()
+        try:
+            response = client.get_object(namespace_name=namespace, bucket_name=bucket, object_name=key)
+        except oci.exceptions.ServiceError as e:
+            if e.status == 404:
+                # Construct and return a new object
+                LOG.debug("constructing new object")
+                return default()
+            raise
 
-        else:
-            # We have something, so use that
-            store = pickle.load(response.data)
-            obj = factory(store)
-            CACHE[response.headers['ETag']] = obj
-            return obj
+        # We have something, so use that
+        store = pickle.load(response.data)
+        obj = factory(store)
+        CACHE[response.headers['ETag']] = obj
+        return obj
 
     else:
         # Grab the updated thing if our cached copy is out-of-date
-        response = client.get_object(namespace_name=namespace, bucket_name=bucket, object_name=key,
-                                     if_none_match=old_version)
-        if response.status == 304:
-            # Use the same object
-            return old_obj
+        try:
+            response = client.get_object(namespace_name=namespace, bucket_name=bucket, object_name=key,
+                                         if_none_match=old_version)
+        except oci.exceptions.ServiceError as e:
+            if e.status == 304:
+                # Use the same object
+                return old_obj
 
-        elif response.status == 404:
-            # Apparently someone has deleted it, so start afresh
-            del CACHE[key]
-            return default()
+            elif e.status == 404:
+                # Apparently someone has deleted it, so start afresh
+                del CACHE[key]
+                return default()
 
-        elif response.status == 200:
+            raise
+
+        if response.status == 200:
             # We have something, so use that
             store = pickle.load(response.data)
             obj = factory(store)

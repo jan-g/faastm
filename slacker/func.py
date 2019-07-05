@@ -40,6 +40,8 @@ def handle(ctx, data: io.BytesIO, bot_class=Bot):
     init(ctx.Config())
     try:
         args = json.loads(data.getvalue())
+        LOG.debug('args are %s', {k: args[k] for k in args if k != 'token'})
+
         token = args.get('token')
         if token != TOKEN:
             return response.Response(ctx, status_code=401)
@@ -51,8 +53,7 @@ def handle(ctx, data: io.BytesIO, bot_class=Bot):
         if team != TEAM:
             return response.Response(ctx, status_code=404)
 
-        service = SERVICE
-        if service is None:
+        if SERVICE is None:
             return response.Response(ctx, status_code=404)
 
         if args.get('type') == 'event_callback':
@@ -61,7 +62,6 @@ def handle(ctx, data: io.BytesIO, bot_class=Bot):
             if event.get('type') == 'app_mention':
                 pass
             elif event.get('type') == 'message' and event.get('subtype') is None:
-                LOG.debug('args are %s', {k: args[k] for k in args if k != 'token'})
 
                 text = Text.parse(event.get('text', ''), srv=SERVICE)
                 text.ts = event.get('ts')
@@ -79,5 +79,8 @@ def handle(ctx, data: io.BytesIO, bot_class=Bot):
                                         signer=rp, namespace=NAMESPACE, bucket=BUCKET)
                 dispatcher.dispatch(sender=sender, channel=channel, receivers=receivers, text=text)
 
-    finally:
-        return response.Response(ctx, status_code=200)
+    except Exception as e:
+        LOG.exception("Problem during dispatch: %r", e)
+        return response.Response(ctx, status_code=500)
+
+    return response.Response(ctx, status_code=200)

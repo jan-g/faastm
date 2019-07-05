@@ -18,9 +18,14 @@ class Dispatcher:
     def dispatch(self, sender=None, channel=None, receivers=None, text=None):
         while True:
             LOG.debug("attempting to dispatch message %s", text)
-            obj = load(channel.id, default=self.default, factory=self.factory,
-                       signer=self.signer, namespace=self.namespace, bucket=self.bucket)
-            srv = CommittingService(self.srv)
+            try:
+                obj = load(channel.id, default=self.default, factory=self.factory,
+                           signer=self.signer, namespace=self.namespace, bucket=self.bucket)
+            except Exception as e:
+                LOG.exception("something happened when constructing object to dispatch to %r", e)
+                return
+            LOG.debug("sending to %s", obj)
+            srv = CommittingService(delegate=self.srv)
             if obj.on_message(srv=srv, sender=sender, channel=channel, receivers=receivers, text=text):
                 # We have to save
                 try:

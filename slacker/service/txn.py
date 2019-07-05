@@ -9,7 +9,7 @@ LOG = logging.getLogger(__name__)
 def delay(f):
     @functools.wraps(f)
     def eventually(self, *args, **kwargs):
-        self.actions.append((f, args, kwargs))
+        self.actions.append((f, (self, *args), kwargs))
     return eventually
 
 
