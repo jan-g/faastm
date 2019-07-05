@@ -66,7 +66,7 @@ def load(key, default=None, factory=None, signer=None, namespace=None, bucket=No
             raise
 
         # We have something, so use that
-        store = pickle.load(response.data)
+        store = pickle.loads(response.data)
         obj = factory(store)
         CACHE[response.headers['ETag']] = obj
         return obj
