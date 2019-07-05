@@ -66,7 +66,7 @@ def load(key, default=None, factory=None, signer=None, namespace=None, bucket=No
             raise
 
         # We have something, so use that
-        store = pickle.loads(response.data)
+        store = pickle.loads(response.data.content)
         obj = factory(store)
         CACHE[response.headers['ETag']] = obj
         return obj
@@ -90,7 +90,7 @@ def load(key, default=None, factory=None, signer=None, namespace=None, bucket=No
 
         if response.status == 200:
             # We have something, so use that
-            store = pickle.loads(response.data)
+            store = pickle.loads(response.data.content)
             obj = factory(store)
             CACHE[response.headers['ETag']] = obj
             return obj
