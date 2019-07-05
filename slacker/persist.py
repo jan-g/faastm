@@ -68,7 +68,7 @@ def load(key, default=None, factory=None, signer=None, namespace=None, bucket=No
         # We have something, so use that
         store = pickle.loads(response.data.content)
         obj = factory(store)
-        CACHE[response.headers['ETag']] = obj
+        CACHE[key] = (response.headers['ETag'], obj)
         return obj
 
     else:
@@ -92,7 +92,7 @@ def load(key, default=None, factory=None, signer=None, namespace=None, bucket=No
             # We have something, so use that
             store = pickle.loads(response.data.content)
             obj = factory(store)
-            CACHE[response.headers['ETag']] = obj
+            CACHE[key] = (response.headers['ETag'], obj)
             return obj
 
         else:
