@@ -17,6 +17,7 @@ class Dispatcher:
 
     def dispatch(self, sender=None, channel=None, receivers=None, text=None):
         while True:
+            LOG.debug("attempting to dispatch message %s", text)
             obj = load(channel.id, default=self.default, factory=self.factory,
                        signer=self.signer, namespace=self.namespace, bucket=self.bucket)
             srv = CommittingService(self.srv)
