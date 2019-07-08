@@ -71,7 +71,7 @@ class Service(BaseService):
     @delay
     def whisper(self, channel=None, agent=None, text=None):
         channel = self.delegate.lookup_channel(channel=channel)
-        agent = self.delegate.lookup_agent(agent=agent)
+        agent = self.delegate.lookup_user(agent=agent)
         return self.delegate.whisper(channel=channel, agent=agent, text=text)
 
     def commit(self):
