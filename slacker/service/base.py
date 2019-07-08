@@ -40,6 +40,14 @@ class Agent:
             self.real_name = real_name
         return self
 
+    def __hash__(self):
+        return hash(self.id)
+
+    def __eq__(self, other):
+        if self.id is not None and other.id is not None:
+            return self.id == other.id
+        return self.name == other.name
+
 
 class Notice:
     def __init__(self, channel=None, id=None, text=None, *args, **kwargs):

@@ -23,7 +23,7 @@ def init(cfg):
     if TEAM is None:
         TEAM = cfg['TEAM']
     if SERVICE is None:
-        SERVICE = SlackService(team=TEAM, bot_oauth=cfg['BOT_OAUTH'])
+        SERVICE = SlackService(team=TEAM, bot_oauth=cfg['BOT_OAUTH'], user_oauth=cfg.get('USER_OAUTH'))
     if TOKEN is None:
         TOKEN = cfg['TOKEN']
     if NAMESPACE is None:
