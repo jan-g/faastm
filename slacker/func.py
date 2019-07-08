@@ -48,7 +48,7 @@ def load_secret(cfg, setting):
     endpoint = cfg.get("KMS_EP")
 
     if key is None and endpoint is None:
-        return cfg.get(setting)
+        return value
 
     # Create decryption client
     signer = oci.auth.signers.EphemeralResourcePrincipalSigner()
