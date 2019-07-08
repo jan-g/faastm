@@ -22,13 +22,13 @@ NAMESPACE, BUCKET = None, None
 def init(cfg):
     global SERVICE, TOKEN, TEAM, NAMESPACE, BUCKET
     if TEAM is None:
-        TEAM = cfg['TEAM']
+        TEAM = load_secret(cfg, 'TEAM')
     if SERVICE is None:
         SERVICE = SlackService(team=TEAM,
                                bot_oauth=load_secret(cfg, 'BOT_OAUTH'),
                                user_oauth=load_secret(cfg, 'USER_OAUTH'))
     if TOKEN is None:
-        TOKEN = cfg['TOKEN']
+        TOKEN = load_secret(cfg, 'TOKEN')
     if NAMESPACE is None:
         NAMESPACE = cfg['NAMESPACE']
     if BUCKET is None:
