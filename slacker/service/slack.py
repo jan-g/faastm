@@ -173,7 +173,8 @@ class Service(BaseService):
         resp = requests.post('https://slack.com/api/chat.delete',
                              headers={'Authorization': 'Bearer {}'.format(self.user)},
                              json={"channel": channel.id,
-                                   "ts": message_id})
+                                   "ts": message_id,
+                                   "as_user": True})
         self.json(resp)
 
     def whisper(self, channel=None, agent=None, text=None):
