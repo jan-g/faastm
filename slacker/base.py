@@ -48,13 +48,13 @@ def debounce(timeout, **kwargs):
             if key in curr or key in prev:
                 return
 
-            # Update and rotate
-            curr.add(key)
-
+            # Rotate and update
             if now > tick:
                 prev = curr
                 curr = set()
                 tick = now + timeout
+
+            curr.add(key)
 
             self.__debounce_curr = curr
             self.__debounce_prev = prev
