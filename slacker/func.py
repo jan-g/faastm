@@ -1,3 +1,4 @@
+import base64
 import io
 from fdk import response
 import json
@@ -23,13 +24,40 @@ def init(cfg):
     if TEAM is None:
         TEAM = cfg['TEAM']
     if SERVICE is None:
-        SERVICE = SlackService(team=TEAM, bot_oauth=cfg['BOT_OAUTH'], user_oauth=cfg.get('USER_OAUTH'))
+        SERVICE = SlackService(team=TEAM,
+                               bot_oauth=load_secret(cfg, 'BOT_OAUTH'),
+                               user_oauth=load_secret(cfg, 'USER_OAUTH'))
     if TOKEN is None:
         TOKEN = cfg['TOKEN']
     if NAMESPACE is None:
         NAMESPACE = cfg['NAMESPACE']
     if BUCKET is None:
         BUCKET = cfg['BUCKET']
+
+
+def load_secret(cfg, setting):
+    """If we have KMS_KEY and KMS_EP defined, use those to decrypt the given secret
+
+    Otherwise, pull the value out as plaintext."""
+    value = cfg.get(setting)
+    if value is None:
+        return value
+
+    # Retrieve key OCID and endpoint
+    key = cfg.get("KMS_KEY")
+    endpoint = cfg.get("KMS_EP")
+
+    if key is None and endpoint is None:
+        return cfg.get(setting)
+
+    # Create decryption client
+    signer = oci.auth.signers.EphemeralResourcePrincipalSigner()
+    client = oci.key_management.KmsCryptoClient({}, endpoint, signer=signer)
+
+    # The plaintext is returned as base64-encoded data. Decrypt it (providing a byte sequence)
+    # and then produce a UTF-8 string from the result.
+    return base64.b64decode(client.decrypt(oci.key_management.models.DecryptDataDetails(
+        key_id=key, ciphertext=value)).data.plaintext).decode("utf-8")
 
 
 class Bot(BaseDispatch):
