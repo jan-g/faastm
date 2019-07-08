@@ -44,6 +44,8 @@ class Agent:
         return hash(self.id)
 
     def __eq__(self, other):
+        if self.__class__ is not other.__class__:
+            return False
         if self.id is not None and other.id is not None:
             return self.id == other.id
         return self.name == other.name
