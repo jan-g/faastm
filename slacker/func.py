@@ -51,7 +51,7 @@ def load_secret(cfg, setting):
         return value
 
     # Create decryption client
-    signer = oci.auth.signers.EphemeralResourcePrincipalSigner()
+    signer = oci.auth.signers.get_resource_principals_signer()
     client = oci.key_management.KmsCryptoClient({}, endpoint, signer=signer)
 
     # The plaintext is returned as base64-encoded data. Decrypt it (providing a byte sequence)
@@ -101,7 +101,7 @@ def handle(ctx, data: io.BytesIO, bot_class=Bot):
                     channel = channel.replace(is_im=True)
                 receivers = [Agent(id=rcv, is_bot=True) for rcv in args.get('authed_users', [])]
 
-                rp = oci.auth.signers.EphemeralResourcePrincipalSigner()
+                rp = oci.auth.signers.get_resource_principals_signer()
                 dispatcher = Dispatcher(srv=SERVICE,
                                         default=bot_class, factory=bot_class.load,
                                         signer=rp, namespace=NAMESPACE, bucket=BUCKET)
