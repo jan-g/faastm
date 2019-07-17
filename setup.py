@@ -25,6 +25,7 @@ setup(
 
     install_requires=[
         'cachetools',
+        'dill',
         'fdk',
         'oci',
         'requests',

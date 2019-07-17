@@ -1,6 +1,6 @@
+import dill
 import logging
 import oci
-import pickle
 
 LOG = logging.getLogger(__name__)
 
@@ -15,7 +15,7 @@ def save(key, obj, signer=None, namespace=None, bucket=None):
     # Write the object out as the key - IF it's not been updated
     key = str(key)
     old_version, _ = CACHE.get(key, (None, None))
-    store = pickle.dumps(obj.save())
+    store = dill.dumps(obj.save())
 
     client = oci.object_storage.ObjectStorageClient({}, signer=signer)
     if old_version is None:
@@ -66,7 +66,7 @@ def load(key, default=None, factory=None, signer=None, namespace=None, bucket=No
             raise
 
         # We have something, so use that
-        store = pickle.loads(response.data.content)
+        store = dill.loads(response.data.content)
         obj = factory(store)
         CACHE[key] = (response.headers['ETag'], obj)
         return obj
@@ -90,7 +90,7 @@ def load(key, default=None, factory=None, signer=None, namespace=None, bucket=No
 
         if response.status == 200:
             # We have something, so use that
-            store = pickle.loads(response.data.content)
+            store = dill.loads(response.data.content)
             obj = factory(store)
             CACHE[key] = (response.headers['ETag'], obj)
             return obj
