@@ -31,13 +31,8 @@ This can be installed in a Fn-style serverless function like this:
     
     
     class MyBot(BaseDispatch):
-        def __init__(self, *args, **kwargs):
-            super().__init__(*args, **kwargs)
-            self.env = make_env('zork1.z3')
-            self.start = True
-    
         @debounce(30, text=lambda t: t.ts)
         def on_message(self, srv=None, sender=None, channel=None, receivers=None, text=None):
-            if text.match("!restart") is not None:
-                self.start = True
-                self.env = make_env('zork1.z3')
+            if text.match("hello") is not None:
+                srv.broadcast(channel=channel,
+                              text=Text("hello, world!"))
