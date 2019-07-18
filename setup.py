@@ -10,9 +10,10 @@ setup(
     version="0.0.1",
     description="Experimental one-cell STM for FaaS",
     long_description=read_file("README.md"),
+    long_description_content_type="text/markdown",
     author="jang",
     author_email="faastm@ioctl.org",
-    license=read_file("LICENCE.md"),
+    license="Apache 2",
     packages=find_packages(),
 
     entry_points={
