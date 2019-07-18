@@ -8,7 +8,7 @@ def read_file(fn):
 setup(
     name="faastm",
     version="0.0.1",
-    description="Experimental STM for FaaS",
+    description="Experimental one-cell STM for FaaS",
     long_description=read_file("README.md"),
     author="jang",
     author_email="faastm@ioctl.org",
@@ -16,9 +16,7 @@ setup(
     packages=find_packages(),
 
     entry_points={
-        'console_scripts': [
-            'slackbot = slacker.app:main',
-        ],
+        'console_scripts': [],
     },
 
     include_package_data=True,
