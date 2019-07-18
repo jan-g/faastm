@@ -44,8 +44,7 @@ setup(
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
-        "Topic :: Serverless :: Fn",
-        "Topic :: Communications :: Chat :: Slack",
+        "Topic :: Communications :: Chat",
 
     ],
 )
